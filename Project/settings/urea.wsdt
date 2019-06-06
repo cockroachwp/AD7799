@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<Workspace>
+  <ConfigDictionary>
+    
+  <CurrentConfigs><Project>urea/Debug</Project></CurrentConfigs></ConfigDictionary>
+  <Desktop>
+    <Static>
+      <Workspace>
+        <ColumnWidths>
+          
+          
+          
+          
+        <Column0>333</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
+      </Workspace>
+    <Build><ColumnWidth0>20</ColumnWidth0><ColumnWidth1>1398</ColumnWidth1><ColumnWidth2>373</ColumnWidth2><ColumnWidth3>93</ColumnWidth3></Build><Find-in-Files><ColumnWidth0>659</ColumnWidth0><ColumnWidth1>94</ColumnWidth1><ColumnWidth2>1131</ColumnWidth2></Find-in-Files></Static>
+    <Windows>
+      
+    <Wnd2>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-4801-11200</Identity>
+            <TabName>Workspace</TabName>
+            <Factory>Workspace</Factory>
+            <Session>
+              
+            <NodeDict><ExpandedNode>urea</ExpandedNode><ExpandedNode>urea/CMSIC</ExpandedNode><ExpandedNode>urea/Libraries</ExpandedNode><ExpandedNode>urea/Output</ExpandedNode><ExpandedNode>urea/Startup</ExpandedNode><ExpandedNode>urea/User</ExpandedNode></NodeDict></Session>
+          </Tab>
+        </Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd2><Wnd3><Tabs><Tab><Identity>TabID-23579-12281</Identity><TabName>Build</TabName><Factory>Build</Factory><Session/></Tab><Tab><Identity>TabID-12625-29680</Identity><TabName>Find in Files</TabName><Factory>Find-in-Files</Factory><Session/></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd3></Windows>
+    <Editor>
+      
+      
+      
+      
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>D:\software\iar\arm\doc\infocenter\index.ENU.html</Filename></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\CMSIS\stm32f10x.h</Filename><XPos>0</XPos><YPos>462</YPos><SelStart>36430</SelStart><SelEnd>36430</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\User\sim300.c</Filename><XPos>0</XPos><YPos>118</YPos><SelStart>4528</SelStart><SelEnd>4528</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\User\flash.c</Filename><XPos>0</XPos><YPos>175</YPos><SelStart>6935</SelStart><SelEnd>6935</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\Startup\startup_stm32f10x_hd.s</Filename><XPos>0</XPos><YPos>60</YPos><SelStart>1207</SelStart><SelEnd>1207</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\User\main.c</Filename><XPos>0</XPos><YPos>329</YPos><SelStart>8961</SelStart><SelEnd>8961</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\User\AD7799.c</Filename><XPos>0</XPos><YPos>383</YPos><SelStart>13625</SelStart><SelEnd>13625</SelEnd></Tab><ActiveTab>6</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\include\main.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>364</SelStart><SelEnd>364</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\include\flash.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>605</SelStart><SelEnd>625</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\User\swsbus.c</Filename><XPos>0</XPos><YPos>15</YPos><SelStart>1150</SelStart><SelEnd>1150</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\include\swsbus.h</Filename><XPos>0</XPos><YPos>78</YPos><SelStart>4378</SelStart><SelEnd>4378</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\include\AD7799.h</Filename><XPos>0</XPos><YPos>75</YPos><SelStart>4078</SelStart><SelEnd>4078</SelEnd></Tab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Positions>
+      
+      
+      
+      
+      
+    <Top><Row0><Sizes><Toolbar-05d308a8><key>iaridepm.enu1</key></Toolbar-05d308a8></Sizes></Row0></Top><Left><Row0><Sizes><Wnd2><Rect><Top>-2</Top><Left>-2</Left><Bottom>636</Bottom><Right>407</Right><x>-2</x><y>-2</y><xscreen>200</xscreen><yscreen>200</yscreen><sizeHorzCX>114679</sizeHorzCX><sizeHorzCY>212089</sizeHorzCY><sizeVertCX>234518</sizeVertCX><sizeVertCY>676564</sizeVertCY></Rect></Wnd2></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd3><Rect><Top>-2</Top><Left>-2</Left><Bottom>262</Bottom><Right>1746</Right><x>-2</x><y>-2</y><xscreen>1748</xscreen><yscreen>264</yscreen><sizeHorzCX>1002294</sizeHorzCX><sizeHorzCY>279958</sizeHorzCY><sizeVertCX>114679</sizeVertCX><sizeVertCY>212089</sizeVertCY></Rect></Wnd3></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+  </Desktop>
+</Workspace>
+
+
