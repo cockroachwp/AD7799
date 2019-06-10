@@ -298,6 +298,8 @@
           <state>$PROJ_DIR$\..\include</state>
           <state>$PROJ_DIR$\..\Libraries\inc</state>
           <state>$PROJ_DIR$\..\User</state>
+          <state>$PROJ_DIR$\..\Drivers\include</state>
+          <state>$PROJ_DIR$\..\interface</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1801,6 +1803,27 @@
     </file>
   </group>
   <group>
+    <name>Drivers</name>
+    <group>
+      <name>include</name>
+      <file>
+        <name>$PROJ_DIR$\..\Drivers\include\sws_ad7799.h</name>
+      </file>
+    </group>
+    <group>
+      <name>source</name>
+      <file>
+        <name>$PROJ_DIR$\..\Drivers\source\sws_ad7799.c</name>
+      </file>
+    </group>
+  </group>
+  <group>
+    <name>interface</name>
+    <file>
+      <name>$PROJ_DIR$\..\interface\sws_adc.h</name>
+    </file>
+  </group>
+  <group>
     <name>Libraries</name>
     <file>
       <name>$PROJ_DIR$\..\Libraries\src\misc.c</name>
@@ -1832,6 +1855,12 @@
   </group>
   <group>
     <name>User</name>
+    <group>
+      <name>sws_usrcfg</name>
+      <file>
+        <name>$PROJ_DIR$\..\User\sws_usrcfg\sws_usrcfg.c</name>
+      </file>
+    </group>
     <file>
       <name>$PROJ_DIR$\..\User\AD7799.c</name>
     </file>

@@ -107,7 +107,7 @@ void AD7799_CS_Pin_Configuration(u8 chipn)
     GPIO_InitStructure.GPIO_Pin = AD7799_PINx[chipn];
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;    //  ÍÆÍìÊä³ö
-    GPIO_Init(AD7799_PORT[chipn], &GPIO_InitStructure);  
+    GPIO_Init(AD7799_PORT[chipn], &GPIO_InitStructure);   
   }
 }
 /*******************************************************************************

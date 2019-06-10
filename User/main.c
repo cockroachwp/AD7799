@@ -17,6 +17,7 @@ All rights reserved.
 #include "AD7799.h"
 #include "stm32f10x_tim.h"
 #include "string.h"
+#include "sws_adc.h"
 #include "math.h"
 
 #define S_VERSION      600      //软件版本
@@ -59,9 +60,12 @@ float abs=0;      //吸光度abs=lga+lg((AD1-ad10)/(AD2-ad20))
 u8 up_flag=0;
 int main(void)
 {    
+  sws_adc_handle_t  adc_hand_t;;
   Hardware_Init();      //硬件初始化    
   while(1)
-  {  
+  { 
+    
+    adc_hand_t = sws_ad7799_inst_init();
     
     Down_flag();              //解析标志位
  
