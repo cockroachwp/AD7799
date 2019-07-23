@@ -58,20 +58,37 @@ float abs=0;      //吸光度abs=lga+lg((AD1-ad10)/(AD2-ad20))
 * Return         : None
 *******************************************************************************/
 u8 up_flag=0;
+extern sws_adc_handle_t sws_ad7799_inst_init (void);
+extern int sws_adc_read (sws_adc_handle_t  handle, 
+                 int              chan, 
+                 void            *p_val,
+                 uint32_t         length);
+
+  static uint32_t val_buf[50] = {0};
+  
 int main(void)
 {    
-  sws_adc_handle_t  adc_hand_t;;
-  Hardware_Init();      //硬件初始化    
+  //uint32_t adc_code;                                    /* 采样 Code 值   */
+  uint32_t adc_mv;                                      /* 采样电压 */
+
+  sws_adc_handle_t  adc_hand_t = sws_ad7799_inst_init();
+  
+  int adc_bits = sws_adc_bits_get(adc_hand_t , 0);        /* 获取ADC转换精度 */
+  int adc_vref = sws_adc_vref_get(adc_hand_t , 0);
+  
+  //adc_mv   = val_buf * adc_vref / ((1UL << adc_bits) - 1);
+  
+  
+  //  Hardware_Init();      //硬件初始化    
   while(1)
   { 
+      sws_adc_read(adc_hand_t, 0, val_buf, 50);
     
-    adc_hand_t = sws_ad7799_inst_init();
-    
-    Down_flag();              //解析标志位
- 
-    UREA_Run();
-    
-    Up_flag();
+//    Down_flag();              //解析标志位
+// 
+//    UREA_Run();
+//    
+//    Up_flag();
   } 
 }
 /*******************************************************************************

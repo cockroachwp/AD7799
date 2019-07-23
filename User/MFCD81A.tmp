@@ -1,0 +1,81 @@
+/****************************************************
+Copyright (c) 2012,重庆山外山科技有限公司技术中心
+All rights reserved.
+文件名称：	main.c
+摘 	 要 ：	
+当前版本：      V6.0
+作   者 ：	童锦
+修改内容：	创建该文件并实现功能
+完成日期：	2013-07-25
+****************************************************/
+/* Includes ------------------------------------------------------------------*/
+#include "stm32f10x.h"
+#include "main.h"
+#include "flash.h"
+#include "AD7799.h"
+#include "stm32f10x_tim.h"
+#include "string.h"
+#include "sws_adc.h"
+#include "math.h"
+#include "swsbus.h" 
+
+/*******************************************************************************
+* Function Name  : main
+* Description    : Main program
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+uint8_t p_flag=0;
+extern sws_adc_handle_t sws_ad7799_inst_init (void);
+extern int sws_adc_read (sws_adc_handle_t  handle, 
+                          int              chan, 
+                          void            *p_val,
+                          uint32_t         length);
+
+static uint32_t val_buf[50] = {0};
+ 
+int main(void)
+{    
+  uint32_t adc_mv;                                        /* 采样电压 */
+  uint32_t adc_code;                                      /* 平均采样值 */
+  uint32_t temp = 0;                                      /* 采样电压 */
+  uint8_t  i    = 0;
+  char     buf[30] = 0;
+  
+  uart_gpio_init();
+  
+  sws_adc_handle_t  adc_hand_t = sws_ad7799_inst_init();
+  
+  int adc_bits = sws_adc_bits_get(adc_hand_t , 0);        /* 获取ADC转换精度 */
+  int adc_vref = sws_adc_vref_get(adc_hand_t , 0);
+  
+  while(1)
+  { 
+      sws_adc_read(adc_hand_t, 0, val_buf, 50);
+      
+      for (i = 0; i < (sizeof(val_buf) / sizeof(uint32_t)); i++) {
+         temp += val_buf[i];
+         
+         sprintf(buf," chan 0 get code = %d\r\n", val_buf[i]); 
+         
+         printf_char(buf);
+      }
+      adc_code = temp / (sizeof(val_buf) / sizeof(uint32_t));
+     
+      /* 计算电压值*/
+      adc_mv  = adc_code * adc_vref / ((1UL << adc_bits) - 1); 
+      sprintf(buf," chan 0 get mv = %d\r\n", adc_mv);
+      
+      
+      printf_char(buf);
+      //printf_u32(12345678);
+      //WByte('a');
+      
+      delay_ms（1000）；
+      
+  }
+  
+  
+}
+

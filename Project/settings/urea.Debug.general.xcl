@@ -1,0 +1,13 @@
+"D:\software\iar\arm\bin\armproc.dll" 
+
+"D:\software\iar\arm\bin\armjlink2.dll" 
+
+"C:\Users\Administrator\Desktop\山外山血\AD7799\AD7799\Project\Debug\Exe\urea.out" 
+
+--plugin "D:\software\iar\arm\bin\armbat.dll" 
+
+--device_macro "D:\software\iar\arm\config\debugger\ST\STM32F1xx_XL.dmac" 
+
+
+
+

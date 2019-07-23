@@ -24,7 +24,21 @@ extern "C" {
 
 #include "stm32f10x.h"
 #include "sws_adc.h"
-  
+
+//工作模式选择
+typedef enum
+{
+	AD7799_MODE_CONTINUOUS		=	0,		//连续转换模式
+	AD7799_MODE_SINGLE	        =	1,		//单次转换模式
+	AD7799_MODE_IDLE	        =	2,		//空闲模式
+	AD7799_MODE_POWERDOWN		=	3,		//掉电模式
+	AD7799_MODE_ZEROCALI		=	4,		//内部零刻度校准模式
+	AD7799_MODE_FULLCALI		=	5,		//内部满刻度校准模式
+	AD7799_MODE_SYSZEROCALI		=	6,		//系统零刻度校准模式
+	AD7799_MODE_SYSFULLCALI		=	7,		//系统满刻度校准模式
+}AD7799_MODE_TYPE;
+
+
   /**
  * \brief AD7799 输入使用的引脚
  */
@@ -32,7 +46,7 @@ extern "C" {
       GPIO_TypeDef *POR;
       uint16_t      PIN;
   } sws_gpio_info_t;
-  
+
 /**
  * \brief AD7799 设备信息结构体
  */
@@ -50,9 +64,15 @@ typedef struct sws_ad7799_dev_info{
      * \brief ad7799_in引脚选择
      * */
     sws_gpio_info_t      *in_pin;
-    
-    /** \brief  */
-    sws_gpio_info_t      *cs; 
+
+    /** \brief  片选位*/
+    sws_gpio_info_t      *cs;
+
+    /** \brief  转换模式*/
+    AD7799_MODE_TYPE     mode;
+
+    /** \brief  转换极性*/
+    uint16_t             polar;
 
     /**
      * \brief ADC参考电压，单位：mV
@@ -70,7 +90,7 @@ typedef struct sws_ad7799_dev_info{
 
     /** \brief 进入低功耗模式clk高电平持续时间 ，微妙级别，理论值100us*/
     uint8_t      powerdown_delay;
-    
+
     /** \brief 平台初始化函数，如打开时钟，配置引脚等工作 */
     void     (*pfn_plfm_init)(void);
 
@@ -92,17 +112,16 @@ typedef struct sws_ad7799_dev{
     /** \brief 输出速率 */
     uint8_t                        out_speed;
     /** \brief 通道 */
-    uint8_t                        ch;
-//    /** \brief 是否开启中断模式 */
-//    sws_bool_t                      is_int;
-
+    uint16_t                       config;
+    /** \brief 通道 */
+    uint16_t                       mode;
     /** \brief INT引脚的触发信息类型 */
     struct sws_ad7799_trigger_info {
 
         /** \brief 触发回调函数 */
         sws_ad7799_code_read_cb_t   pfn_callback;
         /** \brief 回调函数的参数 */
-        void                      *p_arg;
+        void                       *p_arg;
 
     } triginfo;/**< \brief INT引脚的触发信息 */
 
@@ -113,7 +132,7 @@ typedef struct sws_ad7799_dev{
     sws_adc_serv_t                 adc_serve;
 
     /** \brief 存放用户启动转换后的回调函数 */
-    sws_adc_seq_cb_t                pfn_callback;
+    sws_adc_seq_cb_t               pfn_callback;
 
     /** \brief 用户启动回调函数的回调函数参数 */
     void                          *p_arg;
@@ -143,9 +162,9 @@ typedef struct sws_ad7799_dev{
 
 typedef sws_ad7799_dev_t * sws_ad7799_adc_handle_t; /**< \brief 句柄定义 */
 
-//转换模式控制位: bit15,14,13
-#define SWS_AD7799_MODE_CONTINUE  0x0000    //v连续转换模式(默认)
-#define SWS_AD7799_MODE_SINGLE    0x2000    //单次转换模式
+////转换模式控制位: bit15,14,13
+//#define SWS_AD7799_MODE_CONTINUE  0x0000    //v连续转换模式(默认)
+//#define SWS_AD7799_MODE_SINGLE    0x2000    //单次转换模式
 
 //PSW开关控制位： bit12
 #define SWS_AD7799_MODE_PSW_OFF   0x0000    //关闭PSW开关(默认)
@@ -156,14 +175,17 @@ typedef sws_ad7799_dev_t * sws_ad7799_adc_handle_t; /**< \brief 句柄定义 */
 #define SWS_AD7799_CONFIG_BIPOLAR     0x0000    //双极性编码(默认)
 #define SWS_AD7799_CONFIG_UNIPOLAR    0x1000    //v单极性编码
 
+ //差分输入信号的单/双极性编码控制: bit13
+#define SWS_AD7799_CONFIG_BUMOUT      0x0000    //BUMOUT电流使能(默认)
+#define SWS_AD7799_CONFIG_UNBUMOUT    0x2000    //电流不使能
+
 /**
  * \nswse AD7799通道选择
  * @{
  */
-#define SWS_AD7799_CHANNEL_0         0      /**< \brief 通道 0,默认 */
-#define SWS_AD7799_CHANNEL_1         1      /**< \brief 通道 1 */
-#define SWS_AD7799_CHANNEL_2         2      /**< \brief 通道 2 */
-#define SWS_AD7799_CHANNEL_3         3      /**< \brief 通道 3 */
+#define SWS_AD7799_CHANNEL_1         0      /**< \brief 通道 1 */
+#define SWS_AD7799_CHANNEL_2         1      /**< \brief 通道 2 */
+#define SWS_AD7799_CHANNEL_3         2      /**< \brief 通道 3 */
 
 /** @} */
 
@@ -180,7 +202,6 @@ typedef sws_ad7799_dev_t * sws_ad7799_adc_handle_t; /**< \brief 句柄定义 */
 #define SWS_AD7799_CONFIG_GAIN_32     0x0500    //增益=32
 #define SWS_AD7799_CONFIG_GAIN_64     0x0600    //增益=64
 #define SWS_AD7799_CONFIG_GAIN_128    0x0700    //增益=128
-#define SWS_AD7799_CONFIG_GAIN_AUTO   0X5A5A    //自动增益 - AD7799硬件无该功能，该功能由软件自动实现
 
 /** @} */
 
@@ -194,9 +215,14 @@ typedef sws_ad7799_dev_t * sws_ad7799_adc_handle_t; /**< \brief 句柄定义 */
 #define SWS_AD7799_MODE_10HZ      0x000c    //转换速率=10hz  ;  抑制:69db(50,60hz)
 #define SWS_AD7799_MODE_12_5HZ    0x000b    //转换速率=12.5hz;  抑制:66db(50,60hz)
 #define SWS_AD7799_MODE_16_7HZ    0x000a    //转换速率=16.7hz;  抑制:65db(50,60hz)
-#define SWS_AD7799_MODE_16_50HZ   0x0009    //转换速率=16.7hz;  抑制:80db(仅50hz)
+#define SWS_AD7799_MODE_16_70HZ   0x0009    //转换速率=16.7hz;  抑制:80db(仅50hz)
 #define SWS_AD7799_MODE_19_6HZ    0x0008    //转换速率=19.6hz;  抑制:90db(仅60hz)
+#define SWS_AD7799_MODE_33_2HZ    0x0007    //转换速率=33.2z;   抑制:-
+#define SWS_AD7799_MODE_39HZ      0x0006    //转换速率=39hz;    抑制:-
 #define SWS_AD7799_MODE_50HZ      0x0005    //转换速率=50hz;    抑制:-
+#define SWS_AD7799_MODE_62HZ      0x0004    //转换速率=62hz;    抑制:-
+#define SWS_AD7799_MODE_123HZ     0x0003    //转换速率=123hz;   抑制:-
+#define SWS_AD7799_MODE_242HZ     0x0002    //转换速率=242hz;   抑制:-
 #define SWS_AD7799_MODE_470HZ     0x0001    //转换速率=470hz;   抑制:-
 /** @} */
 
@@ -210,6 +236,7 @@ typedef sws_ad7799_dev_t * sws_ad7799_adc_handle_t; /**< \brief 句柄定义 */
 #define SWS_AD7799_CONFIG_AIN1        0x0000    //AIN1差分输入
 #define SWS_AD7799_CONFIG_AIN2        0x0001    //AIN2差分输入
 #define SWS_AD7799_CONFIG_AIN3        0x0002    //AIN3差分输入
+
 
 
 /**
@@ -233,15 +260,6 @@ sws_adc_handle_t sws_ad7799_init(sws_ad7799_dev_t            *p_dev,
 void sws_ad7799_deinit (sws_ad7799_adc_handle_t handle);
 
 /**
- * \brief AD7799 配置寄存器读
- *
- * \parsws[in] p_dev : AD7799操作句柄
- *
- * \return adc配置寄存器值
- */
-uint8_t sws_ad7799_config_reg_read(sws_ad7799_dev_t  *p_dev);
-
-/**
  * \brief AD7799 配置寄存器pga写
  *
  * \parsws[in] p_dev : AD7799操作句柄
@@ -250,7 +268,7 @@ uint8_t sws_ad7799_config_reg_read(sws_ad7799_dev_t  *p_dev);
  * \retval  SWS_OK     : 设置成功
  *          SWS_ERROR  : 设置失败，ADC未准备好
  */
-int sws_ad7799_pga_set(sws_ad7799_dev_t  *p_dev, uint32_t pga);
+int sws_ad7799_pga_set(sws_ad7799_dev_t  *p_dev, uint16_t pga);
 
 /**
  * \brief AD7799 配置寄存器ch写
@@ -272,7 +290,7 @@ int sws_ad7799_ch_set(sws_ad7799_dev_t  *p_dev, uint32_t ch);
  * \retval  SWS_OK     : 设置成功
  *          SWS_ERROR  : 设置失败，ADC未准备好
  */
-int sws_ad7799_out_speed_set(sws_ad7799_dev_t  *p_dev, uint32_t speed);
+int sws_ad7799_out_speed_set(sws_ad7799_dev_t  *p_dev, uint16_t speed);
 
 /**
  * \brief AD7799 pga放大倍数读
@@ -299,87 +317,9 @@ uint8_t sws_ad7799_ch_get(sws_ad7799_dev_t  *p_dev);
  *
  * \return adc输出速率
  */
-uint32_t sws_ad7799_out_speed_get(sws_ad7799_dev_t  *p_dev);
+int sws_ad7799_out_speed_get(sws_ad7799_dev_t  *p_dev);
 
-/**
- * \brief AD7799 允许读
- *
- * \parsws[in] p_dev   : AD7799操作句柄
- *
- * \retval  SWS_OK     : 操作成功
- */
-int sws_ad7799_read_int_enable(sws_ad7799_dev_t  *p_dev);
 
-/**
- * \brief AD7799 禁止读
- *
- * \parsws[in] p_dev   : AD7799操作句柄
- *
- * \retval  SWS_OK     : 操作成功
- */
-int sws_ad7799_read_int_disable(sws_ad7799_dev_t  *p_dev);
-
-/**
- * \brief AD7799 轮循读adc采集值
- *
- * \parsws[in]  p_dev   : AD7799操作句柄
- * \parsws[out] val     : 采样数据
- *
- * \retval  SWS_OK 采集成功
- */
-int sws_ad7799_read_polling(sws_ad7799_dev_t *p_dev, uint32_t *val);
-
-/**
- * \brief AD7799 进入低功耗模式
- *
- * \parsws[in] p_dev   : AD7799操作句柄
- *
- * \retval  无
- */
-void sws_ad7799_power_down_enter(sws_ad7799_dev_t  *p_dev);
-
-/**
- * \brief AD7799 退出低功耗模式
- *
- * \parsws[in] p_dev   : AD7799操作句柄
- *
- * \retval  无
- */
-void sws_ad7799_power_down_out(sws_ad7799_dev_t  *p_dev);
-
-/**
- * \brief AD7799 连接中断回调函数
- *
- * \parsws[in] p_dev   : AD7799操作句柄
- * \parsws[in] p_fun   : AD7799中断回调函数
- * \parsws[in] p_arg   : AD7799中断回调函数参数
- *
- * \retval  无
- */
-void sws_ad7799_int_connect(sws_ad7799_dev_t      *p_dev ,
-                           sws_ad7799_code_read_cb_t  p_fun,
-                           void                     *p_arg);
-
-/**
- * \brief AD7799 删除中断回调函数
- *
- * \parsws[in] p_dev   : AD7799操作句柄
- * \parsws[in] p_fun   : AD7799中断回调函数
- * \parsws[in] p_arg   : AD7799中断回调函数参数
- *
- * \retval  无
- */
-void sws_ad7799_int_disconnect(sws_ad7799_dev_t      *p_dev ,
-                              sws_ad7799_code_read_cb_t  p_fun,
-                              void                     *p_arg);
-
-/**
- * \brief AD7799 获得标准adc句柄
- * \parsws[in] p_dev : AD7799操作句柄
- *
- * \retval 标准adc操作句柄
- */
-sws_adc_handle_t sws_ad7799_standard_adc_handle_get(sws_ad7799_dev_t *p_dev);
 /**
  * @}
  */

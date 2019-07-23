@@ -15,26 +15,26 @@
 //#define   RS485_LED_EN                         //有通信指示灯有效
 #define   RS485_LED_GPIO  GPIOE                 //通信指示灯GPIO
 #define   RS485_LED_PIN   GPIO_Pin_5
-#define   RS485_LED_STATE GPIO_ReadInputDataBit(RS485_LED_GPIO,RS485_LED_PIN)  
+#define   RS485_LED_STATE GPIO_ReadInputDataBit(RS485_LED_GPIO,RS485_LED_PIN)
 #define   RS485_LED_ON    GPIO_ResetBits(RS485_LED_GPIO,RS485_LED_PIN)
-#define   RS485_LED_OFF   GPIO_SetBits(RS485_LED_GPIO,RS485_LED_PIN)  
+#define   RS485_LED_OFF   GPIO_SetBits(RS485_LED_GPIO,RS485_LED_PIN)
 /***************************通信定时器及端口配置*******************************/
 #define   RS485_TIM       TIM3                 //RS485使用TIM
-#define   RS485_USART     USART2               //RS485使用串口
+#define   RS485_USART     USART1               //RS485使用串口
 #define   GPIO_USART      GPIOA                //RS485 Rx Tx使用GPIO
 #define   GPIO_RD         GPIOA                //RS485 RD 使用GPIO
-#define   USART_RD        GPIO_Pin_4           //发送接收使能端口
-#define   USART_TX        GPIO_Pin_2           //串口发送信号端口
-#define   USART_RX        GPIO_Pin_3           //串口接收信号端口
+#define   USART_RD        GPIO_Pin_11          //发送接收使能端口
+#define   USART_TX        GPIO_Pin_9           //串口发送信号端口
+#define   USART_RX        GPIO_Pin_10           //串口接收信号端口
 #define   RS485_RE        GPIO_ResetBits(GPIO_RD,USART_RD)//485接收使能
 #define   RS485_DE        GPIO_SetBits(GPIO_RD,USART_RD)  //485发送使能
-#define   BaudRate        115200                             //设置波特率        
+#define   BaudRate        115200                             //设置波特率
 /***************************通信地址配置****************************************/
 #define   LocalAddress      0x28        // 本机地址
 #define   BroadcastAddress  0xAA        // 广播地址
 /***************************接口数组配置****************************************/
-#define   TxBufferSize      40          //发送缓冲区数组长度
-#define   RxBufferSize      40          //接收缓冲区数组长度
+#define   TxBufferSize      100          //发送缓冲区数组长度
+#define   RxBufferSize      10          //接收缓冲区数组长度
 #define   WR0_BufferSize    7           // 写命令0的接口数组长度（协议长度数据+1）
 #define   WR1_BufferSize    1           // 写命令1的接口数组长度（协议长度数据+1）
 #define   WR2_BufferSize    1           // 写命令2的接口数组长度（协议长度数据+1）
@@ -99,7 +99,7 @@ struct COM_Array
   u8 WR6[WR6_BufferSize];    // 写命令6的接口数组
   u8 WR7[WR7_BufferSize];    // 写命令7的接口数组
   u8 WR8[WR8_BufferSize];    // 写命令8的接口数组
-  
+
   u8 RD0[RD0_BufferSize];    // 读命令0的接口数组
   u8 RD1[RD1_BufferSize];    // 读命令1的接口数组
   u8 RD2[RD2_BufferSize];    // 读命令2的接口数组

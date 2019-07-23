@@ -1,81 +1,106 @@
 
 /**
  * \file
- * \brief ZLG116 ADC 用户配置文件
- * \sa am_hwconf_zlg116_adc.c
+ * \brief  AD7799用户配置文件
+ * \sa sws_ad7799_usrcfg.c
  *
  * \internal
  * \par Modification history
  * - 1.00 19-06-10  wangpeng, first implementation.
  * \endinternal
  */
-#include "am_zlg116.h"
-#include "am_gpio.h"
-#include "am_zlg_adc.h"
-#include "hw/amhw_zlg_adc.h"
-#include "hw/amhw_zlg116_rcc.h"
-#include "am_clk.h"
+#include "stm32f10x.h"
+#include "sws_ad7799.h"
 
 /**
- * \addtogroup am_if_src_hwconf_zlg116_adc
- * \copydoc am_hwconf_zlg116_adc.c
+ * \copydoc sws_ad7799_usrcfg.c
  * @{
  */
 
+static  sws_gpio_info_t  ad7799_clk = {
+      GPIOB,
+      GPIO_Pin_13
+};
+
+static  sws_gpio_info_t  ad7799_out = {
+      GPIOB,
+      GPIO_Pin_14
+};
+
+static  sws_gpio_info_t  ad7799_in = {
+      GPIOB,
+      GPIO_Pin_15
+};
+
+static  sws_gpio_info_t  ad7799_cs = {
+      GPIOA,
+      GPIO_Pin_8
+};
+
 /** \brief ADC平台初始化 */
-static void __zlg_plfm_adc_init (void)
+static void __plfm_ad7799_init (void)
 {
-    am_gpio_pin_cfg(PIOA_1, PIOA_1_ADC_IN1 | PIOA_1_AIN);
-    am_gpio_pin_cfg(PIOB_0, PIOB_0_ADC_IN8 | PIOB_0_AIN);
-    am_clk_enable(CLK_ADC1);
+    GPIO_InitTypeDef GPIO_InitStructure;
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO, ENABLE);
+    GPIO_InitStructure.GPIO_Pin = ad7799_clk.PIN;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;    //  推挽输出
+    GPIO_Init(ad7799_clk.POR, &GPIO_InitStructure);
+    GPIO_SetBits(ad7799_clk.POR,ad7799_clk.PIN);
+
+    GPIO_InitStructure.GPIO_Pin = ad7799_out.PIN;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;    //  推挽输出
+    GPIO_Init(ad7799_out.POR, &GPIO_InitStructure);
+    GPIO_SetBits(ad7799_out.POR,ad7799_out.PIN);
+
+    GPIO_InitStructure.GPIO_Pin = ad7799_in.PIN;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;    //  推挽输出
+    GPIO_Init(ad7799_in.POR, &GPIO_InitStructure);
+
+    GPIO_InitStructure.GPIO_Pin = ad7799_cs.PIN;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;       //  上拉输入
+    GPIO_Init(ad7799_cs.POR, &GPIO_InitStructure);
+    GPIO_SetBits(ad7799_cs.POR,ad7799_cs.PIN);
 }
 
 /** \brief 解除ADC平台初始化 */
-static void __zlg_plfm_adc_deinit (void)
+static void __plfm_ad7799_deinit (void)
 {
-    am_gpio_pin_cfg(PIOA_1, PIOA_1_INPUT_FLOAT);
-    am_gpio_pin_cfg(PIOB_0, PIOB_0_INPUT_FLOAT);
-    am_clk_disable (CLK_ADC1);
+
 }
 
-sws_gpio_info_t 
 
 
 
 /** \brief ADC设备信息 */
-static const sws_ad7799_adc_devinfo_t __g_ad7799_devinfo = {
-  
+static const sws_ad7799_dev_info_t __g_ad7799_devinfo = {
+
     /** \brief IO模拟SPI SCLK引脚选择 */
-    {
-      GPIOB,
-      GPIO_Pin_12
-    }
- 
+     &ad7799_clk,
+
     /**
      * \brief ad7799_out引脚选择
      * */
-    {
-      GPIOB,
-      GPIO_Pin_14
-    }
+     &ad7799_out,
 
     /**
      * \brief ad7799_in引脚选择
      * */
-    {
-      GPIOB,
-      GPIO_Pin_15
-    }
-    
+     &ad7799_in,
+
     /**
      * \brief ad7799_cs引脚选择
      *
      * \note 如果硬件没有对DRDY/DOUT引脚分离，该引脚应该和out_pin相同
      * */
-    {
-      GPIOB,
-      GPIO_Pin_13
-    }
+     &ad7799_cs,
+
+     AD7799_MODE_CONTINUOUS,
+
+     SWS_AD7799_CONFIG_BIPOLAR,
 
     /**
      * \brief ADC参考电压，单位：mV
@@ -83,34 +108,35 @@ static const sws_ad7799_adc_devinfo_t __g_ad7799_devinfo = {
      * \note 该参考电压由具体的电路决定
      *
      */
-    uint32_t     vref;
+    3780,
 
     /** \brief CLK时序高电平延时时间 ，微妙级别*/
-    uint8_t      high_clk_delay;
+    20,
 
     /** \brief CLK时序低电平延时时间 ，微妙级别*/
-    uint8_t      low_clk_delay;
+    20,
 
     /** \brief 进入低功耗模式clk高电平持续时间 ，微妙级别，理论值100us*/
-    uint8_t      powerdown_delay;
+    20,
 
-    __zlg_plfm_adc_init,              /**< \brief ADC的平台初始化 */
-    __zlg_plfm_adc_deinit,            /**< \brief ADC的平台去初始化 */
 
+
+    __plfm_ad7799_init,              /**< \brief ADC的平台初始化 */
+    __plfm_ad7799_deinit             /**< \brief ADC的平台去初始化 */
 };
 
-static am_zlg_adc_dev_t  __g_adc_dev;   /**< \brief 定义ADC 设备 */
+static sws_ad7799_dev_t  __g_ad7799_dev;   /**< \brief 定义ADC 设备 */
 
 /** \brief ADC实例初始化，获得ADC标准服务句柄 */
-am_adc_handle_t am_zlg116_adc_inst_init (void)
+sws_adc_handle_t sws_ad7799_inst_init (void)
 {
-    return am_zlg_adc_init(&__g_adc_dev, &__g_adc_devinfo);
+    return sws_ad7799_init(&__g_ad7799_dev, &__g_ad7799_devinfo);
 }
 
 /** \brief ADC实例解初始化 */
-void am_zlg116_adc_inst_deinit (am_adc_handle_t handle)
+void sws_ad7799_inst_deinit (sws_adc_handle_t handle)
 {
-    am_zlg_adc_deinit(handle);
+  //  sws_adc_deinit(handle);
 }
 
 /**

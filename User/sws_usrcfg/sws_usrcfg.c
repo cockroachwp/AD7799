@@ -1,7 +1,7 @@
 
 /**
  * \file
- * \brief ZLG116 ADC 用户配置文件
+ * \brief  AD7799用户配置文件
  * \sa sws_hwconf_zlg116_adc.c
  *
  * \internal
@@ -20,7 +20,7 @@
 
 static  sws_gpio_info_t  ad7799_clk = {
       GPIOB,
-      GPIO_Pin_12
+      GPIO_Pin_13
 };
 
 static  sws_gpio_info_t  ad7799_out = {
@@ -34,34 +34,37 @@ static  sws_gpio_info_t  ad7799_in = {
 };
 
 static  sws_gpio_info_t  ad7799_cs = {
-      GPIOB,
-      GPIO_Pin_13
+      GPIOA,
+      GPIO_Pin_8
 };
 
 /** \brief ADC平台初始化 */
 static void __plfm_ad7799_init (void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
-    
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO, ENABLE); 
     GPIO_InitStructure.GPIO_Pin = ad7799_clk.PIN;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;    //  推挽输出
-    GPIO_Init(ad7799_clk.POR, &GPIO_InitStructure);  
+    GPIO_Init(ad7799_clk.POR, &GPIO_InitStructure); 
+    GPIO_SetBits(ad7799_clk.POR,ad7799_clk.PIN);
   
     GPIO_InitStructure.GPIO_Pin = ad7799_out.PIN;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;    //  推挽输出
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;    //  推挽输出
     GPIO_Init(ad7799_out.POR, &GPIO_InitStructure);  
+    GPIO_SetBits(ad7799_out.POR,ad7799_out.PIN);
   
     GPIO_InitStructure.GPIO_Pin = ad7799_in.PIN;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;    //  推挽输出
     GPIO_Init(ad7799_in.POR, &GPIO_InitStructure);  
   
-    GPIO_InitStructure.GPIO_Pin = ad7799_in.PIN;
+    GPIO_InitStructure.GPIO_Pin = ad7799_cs.PIN;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;       //  上拉输入
-    GPIO_Init(ad7799_in.POR, &GPIO_InitStructure);   
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;       //  上拉输入
+    GPIO_Init(ad7799_cs.POR, &GPIO_InitStructure);  
+    GPIO_SetBits(ad7799_cs.POR,ad7799_cs.PIN);
 }
 
 /** \brief 解除ADC平台初始化 */

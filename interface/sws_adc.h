@@ -90,10 +90,10 @@ typedef struct sws_adc_buf_desc {
      *     9  ~  16   |  uint16_t/int16_t
      *    17  ~  32   |  uint32_t/int32_t
      */
-    void                   *p_buf;
+    void                    *p_buf;
     
     /** \brief 数据缓冲区的长度 */
-    uint32_t                length;
+    uint32_t                 length;
     
     /** \brief 该缓冲区数据填充满后的回调函数 */
     sws_adc_buf_cb_t         pfn_complete;
@@ -124,7 +124,7 @@ struct sws_adc_drv_funcs {
     /** \brief 获取ADC的采样率    */
     int (*pfn_rate_get) (void      *p_drv, 
                          int        chan,
-                         uint32_t  *p_rate);
+                         uint32_t   *p_rate);
 
     /** \brief 设置ADC的采样率，实际采样率可能存在差异 */
     int (*pfn_rate_set) (void     *p_drv, 
