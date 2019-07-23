@@ -29,6 +29,7 @@ All rights reserved.
 
 #define PRESSURE    0
 #define FLOW        1
+#define CLOSE       2
 
 typedef struct pressure_flow_cmd {
     char cmd;
@@ -108,6 +109,12 @@ extern int sws_adc_read (sws_adc_handle_t  handle,
 
      // memset(TxBuffer, 0,sizeof(TxBuffer));
 
+      if (pressure_flow_cmd.cmd == CLOSE) {
+          TIM_SetCompare2(TIM4, 0);
+
+          GPIO_ResetBits(GPIOC,GPIO_Pin_9);
+          continue;
+      }
 
 
      a = get_pre(adc_hand_t);
@@ -117,14 +124,14 @@ extern int sws_adc_read (sws_adc_handle_t  handle,
 
      RS485_SendData(strlen(TxBuffer));
 
-      if (a >= pressure_flow_cmd.max_pressure) {
+     if (a >= pressure_flow_cmd.max_pressure) {
 
          //TIM_Cmd(TIM4, DISABLE);
          TIM_SetCompare2(TIM4, 0);
 
          GPIO_ResetBits(GPIOC,GPIO_Pin_9);
          status = higt;
-      }
+     }
 
       if (a <= pressure_flow_cmd.min_pressure ) {
           //TIM_Cmd(TIM4, ENABLE);
@@ -205,7 +212,7 @@ static int analyses_cmd(char data[],pressure_flow_cmd_t *p_pressure_flow)
 
     u8 i = 0;
 
-    for (; *data != ' ';) {
+    for (; *data != ' ' && *data != '\r';) {
         if (data == NULL) {
            sws_printf("please input true command!\r\n");
            return -1;
@@ -255,9 +262,21 @@ static int analyses_cmd(char data[],pressure_flow_cmd_t *p_pressure_flow)
         p_pressure_flow->cmd          = PRESSURE;
         p_pressure_flow->min_pressure =  temp2;
         p_pressure_flow->max_pressure =  temp1;
+        sws_printf("pressure is OK\r\n") ;
 
+    } else if (strcmp(cmd, "close") == 0) {
+        p_pressure_flow->cmd      = CLOSE;
+        sws_printf ("close OK\r\n");
+    } else if ( strcmp(cmd, "flow") ==0) {
+        sws_printf("set flow Completing in progress\r\n");
+    } else if ( strcmp(cmd, "flow")) {
+        sws_printf("please input true command!\r\n");
     }
-    sws_printf("OK\r\n") ;
+
+
+
+
+
     return 0;
 }
 
