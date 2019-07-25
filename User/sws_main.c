@@ -19,6 +19,7 @@ All rights reserved.
 #include "math.h"
 #include "swsbus.h"
 #include "delay.h"
+#include "math.h"
 #include "string.h"
  //#include "sws_rs485.h"
 
@@ -64,6 +65,39 @@ extern int sws_adc_read (sws_adc_handle_t  handle,
 
 
 
+/*******************************************************************************
+* Function Name  : Systick_Configuration
+* Description    : None
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void SysTick_Configuration(void)
+{
+  /* Setup SysTick Timer for 100ms interrupts  */
+  if (SysTick_Config(72000))
+  {
+    /* Capture error */
+    while (1);
+  }
+}
+
+uint32_t   SysTickTime = 0;
+
+///**
+//* @brief  This function handles SysTick Handler.
+//* @param  None
+//* @retval None
+//*/
+//
+//void SysTick_Handler(void)
+//{
+//
+//  SysTickTime++;
+//
+//}
+
+
  int main(void)
 {
                                         /* 采样电压 */
@@ -72,34 +106,135 @@ extern int sws_adc_read (sws_adc_handle_t  handle,
  // char     buf[30] = 0;
 
     static int  a = 0;
-  pressure_flow_cmd_t   pressure_flow_cmd = {1, 20, 150, 500};
 
-  u8 status   = light;
-  delay_init();
-  //uart_gpio_init();
-  GearPump_Init();
-  RS485_Init();
+    float T;
+    float value_to_write;
+    const float pi =3.1416;
+    float delta_t=0.01;
+    float t;
+    int value_to_write_bit;
+    //byte buffer_serial[26];
+    unsigned long currentMillis;
+    unsigned long previousMillis;
+    unsigned long interval;
+    unsigned long currentMillis_2;
+    unsigned long previousMillis_2;
+    unsigned long interval_2;
 
-  sws_adc_handle_t  adc_hand_t = sws_ad7705_inst_init();
+    float baseline;
+    float A_heart;
+    float f_heart;
+    float A_breathing;
+    float f_breathing;
+    float A1_heart;
+    float P1_heart;
+    float A2_heart;
+    float P2_heart;
+    float A3_heart;
+    float P3_heart;
+    float resolution_factor;
 
-  //u16 bb=1000;
-  TIM_SetCompare2(TIM4, 1500);
+
+    unsigned long cet = 0;
+
+    pressure_flow_cmd_t   pressure_flow_cmd = {1, 20, 150, 500};
+
+    u8 status   = light;
+    delay_init();
+    //uart_gpio_init();
+    GearPump_Init();
+    RS485_Init();
+
+    sws_adc_handle_t  adc_hand_t = sws_ad7705_inst_init();
+
+    //u16 bb=1000;
+    //TIM_SetCompare2(TIM4, 3500);
 
     sws_out_prompting_message();
 
     memset(&pressure_flow_cmd, 0,sizeof(pressure_flow_cmd));
 
+    baseline=1;
+    A_heart=0;
+    f_heart=1;
+    A_breathing=0;
+    f_breathing=0;
+
+	resolution_factor=0.0022;  // per 10 bit
+    t=0.01;
+    A1_heart=1;
+    P1_heart=0;
+    A2_heart=0;
+    P2_heart=0;
+    A3_heart=0;
+    P3_heart=0;
+    interval=1000;
+    interval_2=10; /// should be = delta_t*1000
+
+    int b = 0;
+
+    float  min      =  1000;
+    float  max      =  3500;
+
+
+    while(1) {
+
+       if ( recive_status == 1) {
+
+         analyses_cmd(RxBuffer, &pressure_flow_cmd);
+         memset(RxBuffer, 0, sizeof(RxBuffer));
+         RxBufferLength = 0;
+         recive_status  = 0;
+       }
+
+     // currentMillis = cet;  //cpu当前的运行时间
+
+      //if(currentMillis - previousMillis_2 >= interval_2) {   //10 毫秒进入一次
+         previousMillis_2 = currentMillis;
+
+         T=1/f_heart;
+         value_to_write = max*sin(2*pi*t*f_heart);  //+
+                     // ((A2_heart/resolution_factor)*sin(2*pi*t*2*f_heart+P2_heart)) +
+    				 // ((A3_heart/resolution_factor)*sin(2*pi*t*3*f_heart+P3_heart)) +
+    				//  ( baseline/resolution_factor);
+
+          if (value_to_write<min) {
+               value_to_write=min;
+          }
+
+          if (value_to_write > max) {
+               value_to_write = max;
+          }
+
+          if (t < (T)) {
+             t = t+delta_t;
+          } else {
+             t=0.01;
+          }
+
+          value_to_write_bit=(int) value_to_write;
+
+
+
+          TIM_SetCompare2(TIM4, value_to_write);
+          sprintf(TxBuffer, "%f \r\n", value_to_write);
+
+          RS485_SendData(strlen(TxBuffer));
+
+          delay_ms(5);
+          // delay_us(500);
+          cet++;
+
+}
+
+
+
+
+
   while(1)
   {
 
       if ( recive_status == 1) {
-        //  RxBuffer[RxBufferLength++]
-        //  strcpy(TxBuffer, RxBuffer);
-
-
-     // sprintf(TxBuffer, "pressure is %d mhg at present!\r\n", a);
-
-         // RS485_SendData(strlen(TxBuffer));
 
          analyses_cmd(RxBuffer, &pressure_flow_cmd);
          memset(RxBuffer, 0, sizeof(RxBuffer));
@@ -135,12 +270,16 @@ extern int sws_adc_read (sws_adc_handle_t  handle,
 
       if (a <= pressure_flow_cmd.min_pressure ) {
           //TIM_Cmd(TIM4, ENABLE);
-          TIM_SetCompare2(TIM4, 3000);
+          TIM_SetCompare2(TIM4, 3500);
           GPIO_SetBits(GPIOC, GPIO_Pin_9);
           status = light
       }
 
   }
+
+
+
+
 
 }
 
